@@ -7,9 +7,15 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"net/http"
 	"time"
+
+	_ "golang.org/x/image/webp"
 )
 
 // Config Mermaid 配置
@@ -127,40 +133,17 @@ func DownloadImage(ctx context.Context, url string, client *http.Client) (*bytes
 }
 
 // IsImage 检查数据是否为有效图片
-// 这是简化版本，完整实现需要图片库
+// 使用 Go 标准库 image 包验证图片格式
 func IsImage(data *bytes.Buffer) bool {
-	// 检查常见图片格式的魔术字节
-	if data.Len() < 8 {
+	if data.Len() == 0 {
 		return false
 	}
 	
-	header := data.Bytes()[:8]
-	
-	// PNG: 89 50 4E 47 0D 0A 1A 0A
-	if len(header) >= 8 && header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47 {
-		return true
-	}
-	
-	// JPEG: FF D8 FF
-	if len(header) >= 3 && header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF {
-		return true
-	}
-	
-	// WebP: 52 49 46 46 ... 57 45 42 50
-	if len(header) >= 12 {
-		riff := header[0:4]
-		webp := header[8:12]
-		if string(riff) == "RIFF" && string(webp) == "WEBP" {
-			return true
-		}
-	}
-	
-	// GIF: 47 49 46 38
-	if len(header) >= 4 && header[0] == 0x47 && header[1] == 0x49 && header[2] == 0x46 && header[3] == 0x38 {
-		return true
-	}
-	
-	return false
+	// 使用 image.DecodeConfig 验证图片
+	// 这会尝试解码图片头部，支持 PNG, JPEG, GIF, WebP
+	reader := bytes.NewReader(data.Bytes())
+	_, _, err := image.DecodeConfig(reader)
+	return err == nil
 }
 
 // RenderMermaid 渲染 Mermaid 图表
