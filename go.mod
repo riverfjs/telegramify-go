@@ -1,4 +1,4 @@
-module github.com/stellarlinkco/myclaw/pkg/telegramify
+module github.com/riverfjs/telegramify-go
 
 go 1.21
 

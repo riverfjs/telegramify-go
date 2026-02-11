@@ -27,7 +27,7 @@ func main() {
 	
 	markdown := sb.String()
 	
-	fmt.Println("=== 消息拆分示例 ===\n")
+	fmt.Println("=== 消息拆分示例 ===")
 	fmt.Printf("原始 Markdown 长度: %d 字符\n\n", len(markdown))
 	
 	// 先转换

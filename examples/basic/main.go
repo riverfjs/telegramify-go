@@ -47,7 +47,7 @@ func main() {
 **粗体 *斜体嵌套* 粗体**
 `
 
-	fmt.Println("=== 基础转换示例 ===\n")
+	fmt.Println("=== 基础转换示例 ===")
 	
 	// 转换为纯文本 + entities
 	text, entities := tg.Convert(markdown, true, nil)
@@ -80,7 +80,7 @@ func main() {
 		fmt.Println()
 	}
 	
-	fmt.Println("\n=== 自定义配置示例 ===\n")
+	fmt.Println("\n=== 自定义配置示例 ===")
 	
 	// 使用自定义配置
 	config := tg.DefaultConfig()

@@ -64,7 +64,7 @@ func main() {
 以上就是完整的示例。
 `
 
-	fmt.Println("=== 完整处理管道示例 ===\n")
+	fmt.Println("=== 完整处理管道示例 ===")
 	
 	ctx := context.Background()
 	
