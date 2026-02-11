@@ -1,0 +1,94 @@
+=== RUN   TestBold_Simple
+--- PASS: TestBold_Simple (0.00s)
+=== RUN   TestBold_InSentence
+--- PASS: TestBold_InSentence (0.00s)
+=== RUN   TestItalic_Simple
+--- PASS: TestItalic_Simple (0.00s)
+=== RUN   TestStrikethrough_Simple
+--- PASS: TestStrikethrough_Simple (0.00s)
+=== RUN   TestNestedFormatting_BoldItalic
+--- PASS: TestNestedFormatting_BoldItalic (0.00s)
+=== RUN   TestInlineCode
+--- PASS: TestInlineCode (0.00s)
+=== RUN   TestCodeBlock_Fenced
+--- PASS: TestCodeBlock_Fenced (0.00s)
+=== RUN   TestCodeBlock_NoLanguage
+--- PASS: TestCodeBlock_NoLanguage (0.00s)
+=== RUN   TestHeading_H1
+--- PASS: TestHeading_H1 (0.00s)
+=== RUN   TestHeading_H2
+--- PASS: TestHeading_H2 (0.00s)
+=== RUN   TestHeading_H3
+--- PASS: TestHeading_H3 (0.00s)
+=== RUN   TestLink_Inline
+--- PASS: TestLink_Inline (0.00s)
+=== RUN   TestBlockquote_Simple
+--- PASS: TestBlockquote_Simple (0.00s)
+=== RUN   TestList_Unordered
+--- PASS: TestList_Unordered (0.00s)
+=== RUN   TestList_Ordered
+--- PASS: TestList_Ordered (0.00s)
+=== RUN   TestList_Task
+--- PASS: TestList_Task (0.00s)
+=== RUN   TestSpoiler
+--- PASS: TestSpoiler (0.00s)
+=== RUN   TestRule_HorizontalRule
+--- PASS: TestRule_HorizontalRule (0.00s)
+=== RUN   TestUTF16Offset_Emoji
+--- PASS: TestUTF16Offset_Emoji (0.00s)
+=== RUN   TestUTF16Offset_CJK
+--- PASS: TestUTF16Offset_CJK (0.00s)
+=== RUN   TestComplexDocument
+--- PASS: TestComplexDocument (0.00s)
+=== RUN   TestUTF16Len_Empty
+--- PASS: TestUTF16Len_Empty (0.00s)
+=== RUN   TestUTF16Len_ASCII
+--- PASS: TestUTF16Len_ASCII (0.00s)
+=== RUN   TestUTF16Len_CJK
+--- PASS: TestUTF16Len_CJK (0.00s)
+=== RUN   TestUTF16Len_EmojiBMP
+--- PASS: TestUTF16Len_EmojiBMP (0.00s)
+=== RUN   TestUTF16Len_EmojiSupplementary
+--- PASS: TestUTF16Len_EmojiSupplementary (0.00s)
+=== RUN   TestUTF16Len_Mixed
+--- PASS: TestUTF16Len_Mixed (0.00s)
+=== RUN   TestUTF16Len_FlagEmoji
+--- PASS: TestUTF16Len_FlagEmoji (0.00s)
+=== RUN   TestUTF16Len_MatchesEncode
+=== RUN   TestUTF16Len_MatchesEncode/#00
+=== RUN   TestUTF16Len_MatchesEncode/hello
+=== RUN   TestUTF16Len_MatchesEncode/你好世界
+=== RUN   TestUTF16Len_MatchesEncode/📌✅🔗
+=== RUN   TestUTF16Len_MatchesEncode/A📌B你好C
+=== RUN   TestUTF16Len_MatchesEncode/test_🇺🇸_flag
+--- PASS: TestUTF16Len_MatchesEncode (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/#00 (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/hello (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/你好世界 (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/📌✅🔗 (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/A📌B你好C (0.00s)
+    --- PASS: TestUTF16Len_MatchesEncode/test_🇺🇸_flag (0.00s)
+=== RUN   TestMessageEntity_ToDict
+--- PASS: TestMessageEntity_ToDict (0.00s)
+=== RUN   TestMessageEntity_ToDictWithURL
+--- PASS: TestMessageEntity_ToDictWithURL (0.00s)
+=== RUN   TestMessageEntity_ToDictWithLanguage
+--- PASS: TestMessageEntity_ToDictWithLanguage (0.00s)
+=== RUN   TestMessageEntity_ToDictWithCustomEmoji
+--- PASS: TestMessageEntity_ToDictWithCustomEmoji (0.00s)
+=== RUN   TestSplitEntities_NoSplitNeeded
+--- PASS: TestSplitEntities_NoSplitNeeded (0.00s)
+=== RUN   TestSplitEntities_EmptyText
+--- PASS: TestSplitEntities_EmptyText (0.00s)
+=== RUN   TestSplitEntities_SplitAtNewline
+--- PASS: TestSplitEntities_SplitAtNewline (0.00s)
+=== RUN   TestSplitEntities_EntityFullyInFirstChunk
+--- PASS: TestSplitEntities_EntityFullyInFirstChunk (0.00s)
+=== RUN   TestSplitEntities_PreservesTotalText
+--- PASS: TestSplitEntities_PreservesTotalText (0.00s)
+=== RUN   TestSplitEntities_WithEmoji
+--- PASS: TestSplitEntities_WithEmoji (0.00s)
+=== RUN   TestSplitEntities_HardSplitNoNewlines
+--- PASS: TestSplitEntities_HardSplitNoNewlines (0.00s)
+PASS
+ok  	telegramify-go	0.188s
