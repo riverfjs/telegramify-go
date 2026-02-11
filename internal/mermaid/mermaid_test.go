@@ -130,6 +130,28 @@ func TestIsImage(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "valid WebP",
+			setup: func() *bytes.Buffer {
+				// Download a real WebP from mermaid.ink to test
+				// Use a simple diagram
+				diagram := "graph LR\n    A-->B"
+				url, _ := GetMermaidInkURL(diagram)
+				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+				defer cancel()
+				
+				buf, err := DownloadImage(ctx, url, nil)
+				if err != nil {
+					// If download fails, return a minimal WebP structure for testing
+					buf = bytes.NewBuffer([]byte("RIFF"))
+					buf.Write([]byte{0x20, 0x00, 0x00, 0x00})
+					buf.Write([]byte("WEBP"))
+					return buf
+				}
+				return buf
+			},
+			want: true,
+		},
+		{
 			name: "empty data",
 			setup: func() *bytes.Buffer {
 				return &bytes.Buffer{}
