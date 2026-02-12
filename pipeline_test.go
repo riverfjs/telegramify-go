@@ -1,6 +1,7 @@
 package telegramify
 
 import (
+	"context"
 	"strings"
 	"testing"
 
@@ -214,6 +215,58 @@ func TestHandleCodeBlock_LineFiltering(t *testing.T) {
 				if string(file.FileData) != rawCode {
 					t.Errorf("handleCodeBlock() file data mismatch")
 				}
+			}
+		})
+	}
+}
+
+// TestPathWithTilde tests that file paths with ~ (home directory) are not treated as strikethrough
+func TestPathWithTilde(t *testing.T) {
+	tests := []struct {
+		name     string
+		markdown string
+		wantText string
+	}{
+		{
+			name:     "single tilde path",
+			markdown: "路径是 ~/.myclaw/workspace/file",
+			wantText: "路径是 ~/.myclaw/workspace/file",
+		},
+		{
+			name:     "command with tilde path",
+			markdown: "执行 ~/.myclaw/workspace/.claude/skills/todo/bin/todo reminders",
+			wantText: "执行 ~/.myclaw/workspace/.claude/skills/todo/bin/todo reminders",
+		},
+		{
+			name:     "two separate tilde paths",
+			markdown: "路径1: ~/.myclaw/path1 路径2: ~/.myclaw/path2",
+			wantText: "路径1: ~/.myclaw/path1 路径2: ~/.myclaw/path2",
+		},
+		{
+			name:     "tilde in middle of line",
+			markdown: "你可以使用 ~/.myclaw/workspace/.claude/skills/todo/bin/todo complete 4 来完成任务",
+			wantText: "你可以使用 ~/.myclaw/workspace/.claude/skills/todo/bin/todo complete 4 来完成任务",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			contents, err := ProcessMarkdown(context.Background(), tt.markdown, 4096, false, nil)
+			if err != nil {
+				t.Fatalf("ProcessMarkdown() error = %v", err)
+			}
+			
+			if len(contents) == 0 {
+				t.Fatal("ProcessMarkdown() returned no contents")
+			}
+			
+			text, ok := contents[0].(*Text)
+			if !ok {
+				t.Fatalf("ProcessMarkdown() first content is not Text, got %T", contents[0])
+			}
+			
+			if text.Text != tt.wantText {
+				t.Errorf("ProcessMarkdown() text mismatch\ngot:  %q\nwant: %q", text.Text, tt.wantText)
 			}
 		})
 	}
