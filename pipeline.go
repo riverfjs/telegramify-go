@@ -182,22 +182,7 @@ func ProcessMarkdown(
 	cursorUTF16 := 0
 	
 	for _, seg := range specialSegments {
-		// Emit text before this segment
-		if seg.TextStart > cursorPy {
-			textChunk, textEntities := sliceTextEntities(
-				fullText, fullEntities,
-				cursorPy, seg.TextStart,
-				cursorUTF16, seg.UTF16Start,
-			)
-			textChunk, textEntities = stripNewlinesAdjustInternal(textChunk, textEntities)
-			if textChunk != "" {
-				appendTextChunks(&result, textChunk, textEntities, maxMessageLength)
-			}
-		}
-		
-		// Handle special segment
-		// extractedAsFile indicates whether the segment was extracted as separate content
-		// If false, the segment remains in the text (not skipped)
+		// Handle special segment first to decide if it should be extracted
 		extractedAsFile := false
 		if seg.Kind == "mermaid" {
 			handleMermaid(ctx, &result, seg)
@@ -206,11 +191,31 @@ func ProcessMarkdown(
 			extractedAsFile = handleCodeBlock(&result, seg)
 		}
 		
-		// Only skip the segment in text if it was extracted as file/photo
-		if extractedAsFile {
-			cursorPy = seg.TextEnd
-			cursorUTF16 = seg.UTF16End
+		// Emit text before (and including) this segment
+		// If extracted as file, only emit text before the segment (skip segment text)
+		// If not extracted, emit text including the segment (keep segment in text)
+		endPy := seg.TextStart
+		endUTF16 := seg.UTF16Start
+		if !extractedAsFile {
+			endPy = seg.TextEnd
+			endUTF16 = seg.UTF16End
 		}
+		
+		if endPy > cursorPy {
+			textChunk, textEntities := sliceTextEntities(
+				fullText, fullEntities,
+				cursorPy, endPy,
+				cursorUTF16, endUTF16,
+			)
+			textChunk, textEntities = stripNewlinesAdjustInternal(textChunk, textEntities)
+			if textChunk != "" {
+				appendTextChunks(&result, textChunk, textEntities, maxMessageLength)
+			}
+		}
+		
+		// Always move cursor past the segment
+		cursorPy = seg.TextEnd
+		cursorUTF16 = seg.UTF16End
 	}
 	
 	// Emit remaining text after last special segment
