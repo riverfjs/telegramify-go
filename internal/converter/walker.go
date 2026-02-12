@@ -99,6 +99,8 @@ func (w *EventWalker) Walk(node ast.Node, entering bool) (ast.WalkStatus, error)
 	case *ast.CodeSpan:
 		if entering {
 			w.onInlineCode(n)
+			// Skip children to avoid processing the text content twice
+			return ast.WalkSkipChildren, nil
 		}
 
 	case *ast.Emphasis:
