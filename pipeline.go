@@ -169,43 +169,33 @@ func ProcessMarkdown(
 	
 	result := make([]Content, 0)
 	
-	// Build a sorted list of code/mermaid segments
-	specialSegments := make([]converter.Segment, 0)
+	// First pass: identify which code blocks should be extracted as files
+	// Only segments that are extracted as files/photos will split the text
+	extractableSegments := make([]converter.Segment, 0)
 	for _, s := range segments {
-		if s.Kind == "code_block" || s.Kind == "mermaid" {
-			specialSegments = append(specialSegments, s)
+		if s.Kind == "mermaid" {
+			// Mermaid always extracted as photo/file
+			extractableSegments = append(extractableSegments, s)
+		} else if s.Kind == "code_block" {
+			// Only extract code blocks > 50 lines
+			lineCount := strings.Count(s.RawCode, "\n") + 1
+			if lineCount > 50 {
+				extractableSegments = append(extractableSegments, s)
+			}
 		}
 	}
 	
-	// Walk through the text, interleaving text chunks with special segments
+	// Walk through the text, splitting only at extractable segments
 	cursorPy := 0
 	cursorUTF16 := 0
 	
-	for _, seg := range specialSegments {
-		// Handle special segment first to decide if it should be extracted
-		extractedAsFile := false
-		if seg.Kind == "mermaid" {
-			handleMermaid(ctx, &result, seg)
-			extractedAsFile = true
-		} else if seg.Kind == "code_block" {
-			extractedAsFile = handleCodeBlock(&result, seg)
-		}
-		
-		// Emit text before (and including) this segment
-		// If extracted as file, only emit text before the segment (skip segment text)
-		// If not extracted, emit text including the segment (keep segment in text)
-		endPy := seg.TextStart
-		endUTF16 := seg.UTF16Start
-		if !extractedAsFile {
-			endPy = seg.TextEnd
-			endUTF16 = seg.UTF16End
-		}
-		
-		if endPy > cursorPy {
+	for _, seg := range extractableSegments {
+		// Emit text before this segment
+		if seg.TextStart > cursorPy {
 			textChunk, textEntities := sliceTextEntities(
 				fullText, fullEntities,
-				cursorPy, endPy,
-				cursorUTF16, endUTF16,
+				cursorPy, seg.TextStart,
+				cursorUTF16, seg.UTF16Start,
 			)
 			textChunk, textEntities = stripNewlinesAdjustInternal(textChunk, textEntities)
 			if textChunk != "" {
@@ -213,7 +203,14 @@ func ProcessMarkdown(
 			}
 		}
 		
-		// Always move cursor past the segment
+		// Extract the segment as file/photo
+		if seg.Kind == "mermaid" {
+			handleMermaid(ctx, &result, seg)
+		} else if seg.Kind == "code_block" {
+			handleCodeBlockAsFile(&result, seg)
+		}
+		
+		// Move cursor past the segment
 		cursorPy = seg.TextEnd
 		cursorUTF16 = seg.UTF16End
 	}
@@ -261,19 +258,9 @@ func appendTextChunks(
 	}
 }
 
-// handleCodeBlock 将代码块提取为 File（仅当代码超过 50 行时）
-// 返回 true 表示已提取为文件，false 表示保留在文本中
-func handleCodeBlock(result *[]Content, seg converter.Segment) bool {
+// handleCodeBlockAsFile 将大代码块提取为 File（仅当代码超过 50 行时调用）
+func handleCodeBlockAsFile(result *[]Content, seg converter.Segment) {
 	rawCode := seg.RawCode
-	
-	// Count lines in code block
-	lineCount := strings.Count(rawCode, "\n") + 1
-	
-	// Only extract as file if more than 50 lines
-	if lineCount <= 50 {
-		return false
-	}
-	
 	lang := seg.Language
 	if lang == "" {
 		lang = "txt"
@@ -290,8 +277,6 @@ func handleCodeBlock(result *[]Content, seg converter.Segment) bool {
 			},
 		},
 	})
-	
-	return true
 }
 
 // handleMermaid 渲染 mermaid 图表为 Photo，或回退到 File
