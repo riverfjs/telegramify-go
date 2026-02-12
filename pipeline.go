@@ -196,14 +196,21 @@ func ProcessMarkdown(
 		}
 		
 		// Handle special segment
+		// extractedAsFile indicates whether the segment was extracted as separate content
+		// If false, the segment remains in the text (not skipped)
+		extractedAsFile := false
 		if seg.Kind == "mermaid" {
 			handleMermaid(ctx, &result, seg)
+			extractedAsFile = true
 		} else if seg.Kind == "code_block" {
-			handleCodeBlock(&result, seg)
+			extractedAsFile = handleCodeBlock(&result, seg)
 		}
 		
-		cursorPy = seg.TextEnd
-		cursorUTF16 = seg.UTF16End
+		// Only skip the segment in text if it was extracted as file/photo
+		if extractedAsFile {
+			cursorPy = seg.TextEnd
+			cursorUTF16 = seg.UTF16End
+		}
 	}
 	
 	// Emit remaining text after last special segment
@@ -250,7 +257,8 @@ func appendTextChunks(
 }
 
 // handleCodeBlock 将代码块提取为 File（仅当代码超过 50 行时）
-func handleCodeBlock(result *[]Content, seg converter.Segment) {
+// 返回 true 表示已提取为文件，false 表示保留在文本中
+func handleCodeBlock(result *[]Content, seg converter.Segment) bool {
 	rawCode := seg.RawCode
 	
 	// Count lines in code block
@@ -258,7 +266,7 @@ func handleCodeBlock(result *[]Content, seg converter.Segment) {
 	
 	// Only extract as file if more than 50 lines
 	if lineCount <= 50 {
-		return
+		return false
 	}
 	
 	lang := seg.Language
@@ -277,6 +285,8 @@ func handleCodeBlock(result *[]Content, seg converter.Segment) {
 			},
 		},
 	})
+	
+	return true
 }
 
 // handleMermaid 渲染 mermaid 图表为 Photo，或回退到 File
