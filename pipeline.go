@@ -44,6 +44,11 @@ func stripNewlinesAdjustInternal(text string, entities []MessageEntity) (string,
 		end = len(text)
 	}
 	
+	// Check bounds before slicing to avoid panic
+	if leading >= end {
+		return "", []MessageEntity{}
+	}
+	
 	stripped := text[leading:end]
 	if stripped == "" {
 		return stripped, []MessageEntity{}
