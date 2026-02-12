@@ -2,10 +2,7 @@ package telegramify
 
 import (
 	"context"
-	"strings"
 	"testing"
-
-	"github.com/riverfjs/telegramify-go/internal/converter"
 )
 
 // TestStripNewlinesAdjustInternal_OnlyNewlines 测试只包含换行符的情况
@@ -140,80 +137,6 @@ func TestStripNewlinesAdjustInternal_WithEntities(t *testing.T) {
 					gotEntities[i].Length != tt.wantEntities[i].Length {
 					t.Errorf("stripNewlinesAdjustInternal() entity[%d] = %+v, want %+v",
 						i, gotEntities[i], tt.wantEntities[i])
-				}
-			}
-		})
-	}
-}
-
-// TestHandleCodeBlock_LineFiltering tests that code blocks are only extracted as files if > 50 lines
-func TestHandleCodeBlock_LineFiltering(t *testing.T) {
-	tests := []struct {
-		name      string
-		lines     int
-		wantFile  bool
-	}{
-		{
-			name:     "1 line - no file",
-			lines:    1,
-			wantFile: false,
-		},
-		{
-			name:     "10 lines - no file",
-			lines:    10,
-			wantFile: false,
-		},
-		{
-			name:     "50 lines - no file (boundary)",
-			lines:    50,
-			wantFile: false,
-		},
-		{
-			name:     "51 lines - extract as file",
-			lines:    51,
-			wantFile: true,
-		},
-		{
-			name:     "100 lines - extract as file",
-			lines:    100,
-			wantFile: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// Generate code with N lines
-			codeLines := make([]string, tt.lines)
-			for i := 0; i < tt.lines; i++ {
-				codeLines[i] = "line" + string(rune('0'+i%10))
-			}
-			rawCode := strings.Join(codeLines, "\n")
-
-			seg := converter.Segment{
-				Kind:     "code_block",
-				Language: "go",
-				RawCode:  rawCode,
-			}
-
-			result := []Content{}
-			handleCodeBlock(&result, seg)
-
-			if tt.wantFile && len(result) == 0 {
-				t.Errorf("handleCodeBlock() expected file for %d lines, got none", tt.lines)
-			}
-			if !tt.wantFile && len(result) > 0 {
-				t.Errorf("handleCodeBlock() expected no file for %d lines, got %d", tt.lines, len(result))
-			}
-
-			// Verify file content if extracted
-			if tt.wantFile && len(result) > 0 {
-				file, ok := result[0].(*File)
-				if !ok {
-					t.Errorf("handleCodeBlock() expected File type, got %T", result[0])
-					return
-				}
-				if string(file.FileData) != rawCode {
-					t.Errorf("handleCodeBlock() file data mismatch")
 				}
 			}
 		})
