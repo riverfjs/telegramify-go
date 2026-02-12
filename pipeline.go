@@ -249,13 +249,22 @@ func appendTextChunks(
 	}
 }
 
-// handleCodeBlock 将代码块提取为 File
+// handleCodeBlock 将代码块提取为 File（仅当代码超过 50 行时）
 func handleCodeBlock(result *[]Content, seg converter.Segment) {
+	rawCode := seg.RawCode
+	
+	// Count lines in code block
+	lineCount := strings.Count(rawCode, "\n") + 1
+	
+	// Only extract as file if more than 50 lines
+	if lineCount <= 50 {
+		return
+	}
+	
 	lang := seg.Language
 	if lang == "" {
 		lang = "txt"
 	}
-	rawCode := seg.RawCode
 	fileName := util.GetFilename(rawCode, lang)
 	
 	*result = append(*result, &File{
